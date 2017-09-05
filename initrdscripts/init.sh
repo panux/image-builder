@@ -1,5 +1,4 @@
-#!/bin/busybox sh
-
+#!/bin/sh
 fail() {
     echo "$1"
     exec /emergency
