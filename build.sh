@@ -94,12 +94,12 @@ echo "Installing bootloaders"
 arch-chroot $mnt /usr/sbin/grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=grub
 
 echo "Finishing initrd"
-uuid=$(lsblk -no UUID "$disk"2)
+uuid=$(lsblk -no UUID "$disk"2)
 if [ -z "$uuid" ]; then
     echo "No uuid found"
     exit 2
 fi
-bootuuid=$(lsblk -no UUID "$disk"1)
+bootuuid=$(lsblk -no UUID "$disk"1)
 if [ -z "$uuid" ]; then
     echo "No boot partition uuid found"
     exit 2
