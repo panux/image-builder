@@ -65,7 +65,7 @@ echo "Done building initramfs structutre"
 echo "Building rootfs"
 git clone https://github.com/panux/lpkg.git
 echo "Bootstrapping rootfs. . . "
-lua lpkg/lpkg.lua bootstrap repo.projectpanux.com beta x86_64 $(pwd)/rootfs base linux linux-firmware grub-efi
+lua lpkg/lpkg.lua bootstrap repo.projectpanux.com beta x86_64 $(pwd)/rootfs base linux linux-firmware grub-bios
 cp inittab rootfs/etc/inittab
 echo "Setting up users"
 echo root:x:0:0:root:/root:/bin/sh > rootfs/etc/passwd
@@ -77,40 +77,29 @@ chroot rootfs /usr/bin/adduser $user
 echo "Done with rootfs"
 
 echo "Partitioning device"
-parted -s $disk mklabel gpt
-parted -s -a none $disk mkpart ESP fat32 0 4M
-parted -s -a none $disk mkpart linux ext4 4M 128M
+parted -s -a optimal "$disk" mklabel msdos -- mkpart primary ext4 1 -1
 mkdir mnt
 mnt=$(realpath mnt)
 echo "Formatting partitions. . . "
-mkfs.msdos -F 32 "$disk"1
-mkfs.ext4 "$disk"2
+mkfs.ext4 "$disk"1
 echo "Copying rootfs to device"
-mount "$disk"2 $mnt
+mount "$disk"1 $mnt
 cp -r rootfs/* $mnt
-mkdir $mnt/boot/efi
-mount "$disk"1 $mnt/boot/efi
 echo "Installing bootloaders"
-arch-chroot $mnt /usr/sbin/grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=grub
+arch-chroot $mnt /usr/sbin/grub-install --target=i386-pc "$disk"
 
 echo "Finishing initrd"
-uuid=$(lsblk -no UUID "$disk"2)
+uuid=$(lsblk -no UUID "$disk"1)
 if [ -z "$uuid" ]; then
     echo "No uuid found"
-    exit 2
-fi
-bootuuid=$(lsblk -no UUID "$disk"1)
-if [ -z "$uuid" ]; then
-    echo "No boot partition uuid found"
     exit 2
 fi
 echo "$uuid" > irfs/uuid
 echo "Generating and installing initrd"
 (cd irfs && find . | cpio -H newc -o | gzip > $mnt/boot/initramfs.igz)
 echo "Generating grub config"
-echo "search --no-floppy --fs-uuid --set root $bootuuid" > $mnt/boot/grub/grub.cfg
+echo "search --no-floppy --fs-uuid --set root $uuid" > $mnt/boot/grub/grub.cfg
 cat grub.cfg >> $mnt/boot/grub/grub.cfg
 
 echo "Unmounting partitions"
-umount $mnt/boot/efi
 umount $mnt
