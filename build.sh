@@ -53,13 +53,6 @@ echo "busybox done"
 
 echo "Building initramfs"
 mkdir irfs
-mkdir irfs/proc irfs/sys irfs/dev irfs/bin
-cp busybox irfs/bin/busybox
-chroot irfs /bin/busybox --install -s /bin
-cp initrdscripts/init.sh irfs/init
-cp initrdscripts/emergency.sh irfs/emergency
-chmod 700 irfs/init
-chmod 700 irfs/emergency
 echo "Done building initramfs structutre"
 
 echo "Building rootfs"
@@ -87,14 +80,24 @@ mount "$disk"1 $mnt
 cp -r rootfs/* $mnt
 echo "Installing bootloaders"
 arch-chroot $mnt /usr/sbin/grub-install --target=i386-pc "$disk"
+echo "Deleting everything other than boot files"
+for file in `ls mnt`; do
+    if [[ "$file" != boot ]]; then
+        rm -r mnt/$file
+    fi
+done
 
-echo "Finishing initrd"
+echo "Generating initrd"
 uuid=$(lsblk -no UUID "$disk"1)
 if [ -z "$uuid" ]; then
     echo "No uuid found"
     exit 2
 fi
 echo "$uuid" > irfs/uuid
+echo "Copying rootfs to initrd"
+cp -r rootfs/* irfs
+echo '#!/bin/sh' > irfs/init
+echo 'exec /bin/init' >> irfs/init
 echo "Generating and installing initrd"
 (cd irfs && find . | cpio -H newc -o | gzip > $mnt/boot/initramfs.igz)
 echo "Generating grub config"
