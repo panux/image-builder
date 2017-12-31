@@ -1,1 +1,2 @@
-/dev/console::respawn:/bin/login
+#/dev/console::respawn:/bin/login
+/dev/console::sysinit:/bin/linitd --unix /tmp/linit
