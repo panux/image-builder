@@ -54,15 +54,9 @@ echo "Formatting partitions. . . "
 mkfs.ext4 "$disk"p1
 echo "Copying rootfs to device"
 mount "$disk"p1 $mnt
-cp -r rootfs/* $mnt
+cp -rp rootfs/* $mnt
 echo "Installing bootloaders"
 grub-install --target=i386-pc --no-floppy --grub-mkdevicemap=$PWD/boot/grub/device.map --root-directory=$PWD/mnt $LOOP
-echo "Deleting everything other than boot files"
-for file in `ls mnt`; do
-    if [[ "$file" != boot ]]; then
-        rm -r mnt/$file
-    fi
-done
 
 echo "Generating initrd"
 uuid=$(lsblk -no UUID "$disk"p1)
@@ -70,17 +64,16 @@ if [ -z "$uuid" ]; then
     echo "No uuid found"
     exit 2
 fi
+echo "Generating and installing initrd"
 echo "$uuid" > irfs/uuid
-echo "Copying rootfs to initrd"
-cp -r rootfs/* irfs
 cp init.sh irfs/init
 chmod +x irfs/init
-echo "Generating and installing initrd"
+mkdir irfs/bin irfs/lib irfs/mnt irfs/dev irfs/proc irfs/sys
+cp rootfs/usr/bin/busybox irfs/bin/busybox
+(chroot irfs /bin/busybox --install -s /bin)
+cp -r rootfs/usr/lib/modules irfs/lib/modules
 (cd irfs && find . | cpio -H newc -o | gzip > $mnt/boot/initramfs.igz)
 echo "Generating grub config"
 echo "search --no-floppy --fs-uuid --set root $uuid" > $mnt/boot/grub/grub.cfg
 cat grub.cfg >> $mnt/boot/grub/grub.cfg
 grub-install --target=i386-pc --no-floppy --grub-mkdevicemap=$PWD/boot/grub/device.map --root-directory=$PWD/mnt $LOOP
-
-echo "Unmounting partitions"
-umount $mnt
