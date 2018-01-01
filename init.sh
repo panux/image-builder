@@ -9,15 +9,16 @@ fail() {
 }
 
 mount -t devtmpfs none /dev || fail dev
-mount -t proc none /proc || fail mnt proc
-mount -t sysfs none /sys || fail mnt sys
+mount -t proc none /proc || fail proc
+mount -t sysfs none /sys || fail sys
 clear || fail clear
 mount UUID=$(cat /uuid) /mnt || fail mnt
+mount -t tmpfs none /mnt/tmp || fail mnt tmp
 mount -t proc none /mnt/proc || fail mnt proc
 mount -t sysfs none /mnt/sys || fail mnt sys
 umount /dev || fail umount /dev
-umount /proc || fail umount /dev
-umount /sys || fail umount /dev
+umount /proc || fail umount /proc
+umount /sys || fail umount /sys
 mount -t devtmpfs none /mnt/dev || fail mnt dev
 clear || fail clear
 exec switch_root /mnt /bin/init || fail switch root
