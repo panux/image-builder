@@ -40,10 +40,6 @@ docker run --name rootfsimg panux/image
 mkdir rootfs
 docker export rootfsimg | tar -xf - -C rootfs
 cp inittab rootfs/etc/inittab
-for i in $(ls init.d); do
-    cp init.d/$i rootfs/etc/init.d/$(basename $i .sh)
-    chmod +x rootfs/etc/init.d/$(basename $i .sh)
-done
 echo "Setup root password for bootable system"
 chroot rootfs /usr/bin/passwd root
 read -p "Enter name for new non-root user: " user
