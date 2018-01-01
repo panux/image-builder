@@ -3,8 +3,8 @@
 set -e
 
 fail() {
-    echo "$@"
-    sleep 10
+    echo Failed "$@"
+    echo Dropping to rescue shell
     exec sh
 }
 
@@ -12,7 +12,6 @@ mount -t devtmpfs none /dev || fail dev
 mount -t proc none /proc || fail mnt proc
 mount -t sysfs none /sys || fail mnt sys
 clear || fail clear
-sleep 3 || fail sleep
 mount UUID=$(cat /uuid) /mnt || fail mnt
 mount -t proc none /mnt/proc || fail mnt proc
 mount -t sysfs none /mnt/sys || fail mnt sys
