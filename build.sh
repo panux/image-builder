@@ -11,7 +11,7 @@ rm -r irfs img.img mnt rootfs || echo Clean
 docker rm rootfsimg || echo Clean
 
 #create and mount disk image
-dd if=/dev/zero of=img.img bs=1M count=128
+dd if=/dev/zero of=img.img bs=1M count=512
 LOOP=$(losetup -f)
 losetup $LOOP img.img
 #cleanup on exit
