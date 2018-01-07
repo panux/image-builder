@@ -20,5 +20,7 @@ umount /dev || fail umount /dev
 umount /proc || fail umount /proc
 umount /sys || fail umount /sys
 mount -t devtmpfs none /mnt/dev || fail mnt dev
+mkdir /mnt/dev/pts || fail mkdir dev/pts
+mount -t devpts devpts /mnt/dev/pts || fail mount dev/pts
 clear || fail clear
 exec switch_root /mnt /bin/init || fail switch root
