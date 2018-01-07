@@ -1,6 +1,6 @@
 FROM panux/panux:x86_64
 
-RUN echo y | lpkg install linux grub-bios linit linit-modules-load dhcpcd eudev xf86-video-vesa xf86-input-libinput lxde-core lxdm && \
+RUN echo y | lpkg install linux grub-bios linit linit-modules-load dhcpcd eudev xf86-video-vesa xf86-input-libinput lxde-core lxdm swrast-dri mesa-demos && \
     /etc/init.d/printk enable && \
     /etc/init.d/login enable && \
     /etc/init.d/dhcpcd enable && \
