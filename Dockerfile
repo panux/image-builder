@@ -5,7 +5,8 @@ RUN echo y | lpkg install linux grub-bios linit linit-modules-load dhcpcd eudev 
     /etc/init.d/login enable && \
     /etc/init.d/dhcpcd enable && \
     /etc/init.d/eudev enable && \
-    /etc/init.d/modules-load enable
+    /etc/init.d/modules-load enable && \
+    /etc/init.d/lxdm enable
 RUN echo 'exec startlxde' > /root/.xinitrc
 RUN gdk-pixbuf-query-loaders > /usr/lib/gdk-pixbuf-2.0/2.10.0/loaders.cache
 RUN ln -s /usr/share/X11/xorg.conf.d/40-libinput.conf /etc/X11/xorg.conf.d/40-libinput.conf
