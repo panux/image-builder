@@ -24,7 +24,7 @@ trap cleanup EXIT
 disk=$LOOP
 
 [ -x "$(command -v git)" ] || { echo "Command missing: git"; echo "Cancelling"; exit 1; }
-[ -x "$(command -v lua)" ] || { echo "Command missing: lua"; echo "Cancelling"; exit 1; }
+[ -x "$(command -v docker)" ] || { echo "Command missing: docker"; echo "Cancelling"; exit 1; }
 [ -x "$(command -v cpio)" ] || { echo "Command missing: mkinitcpio"; echo "Cancelling"; exit 1; }
 [ -x "$(command -v minisign)" ] || { echo "Command missing: minisign"; echo "Cancelling"; exit 1; }
 [ -x "$(command -v parted)" ] || { echo "Command missing: parted"; echo "Cancelling"; exit 1; }
